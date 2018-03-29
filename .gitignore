@@ -3,4 +3,5 @@ node_modules
 .vscode
 .temp
 built
+.nyc_output
 coverage

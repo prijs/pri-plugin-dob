@@ -3,5 +3,6 @@ node_modules
 .vscode
 .temp
 built
-test
+tests
+.nyc_output
 coverage

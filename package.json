@@ -6,7 +6,7 @@
   "scripts": {
     "start": "pri plugin-watch",
     "prepublishOnly": "pri plugin-build",
-    "release": "rimraf built && npm publish",
+    "release": "npm publish",
     "test": "pri test"
   },
   "dependencies": {
