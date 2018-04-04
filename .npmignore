@@ -1,8 +1,9 @@
-node_modules
-.cache
-.vscode
-.temp
-built
-tests
-.nyc_output
-coverage
+/node_modules
+/.cache
+/.vscode
+/.temp
+/.DS_Store
+/coverage
+/.nyc_output
+/dist
+/tests

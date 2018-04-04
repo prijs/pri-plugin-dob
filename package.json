@@ -1,18 +1,21 @@
 {
   "name": "pri-plugin-dob",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "types": "src/index.ts",
   "main": "built/index.js",
   "scripts": {
     "start": "pri plugin-watch",
     "prepublishOnly": "pri plugin-build",
     "release": "npm publish",
-    "test": "pri test"
+    "test": "pri plugin-test",
+    "build": "pri build",
+    "preview": "pri preview"
   },
   "dependencies": {
     "pri": "*"
   },
   "pri": {
-    "web-entry": ["./built/web-store/index.js", "./built/web-menu/index.js"]
+    "web-entry": ["./built/web-store/index.js", "./built/web-menu/index.js"],
+    "type": "plugin"
   }
 }
