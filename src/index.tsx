@@ -4,13 +4,15 @@ import * as normalizePath from "normalize-path"
 import * as path from "path"
 import * as prettier from "prettier"
 import { helperPath, pri, storesPath, tempJsEntryPath } from "pri"
-import { md5 } from "./utils/md5"
+import { addStore } from "./methods"
 
 const LAYOUT_TEMP = "LayoutTempComponent"
 const LAYOUT = "LayoutComponent"
 
 const MARKDOWN_LAYOUT_TEMP = "MarkdownLayoutTempComponent"
 const MARKDOWN_LAYOUT = "MarkdownLayoutComponent"
+
+const whiteList = ["src/utils/helper.tsx"]
 
 const safeName = (str: string) => _.upperFirst(_.camelCase(str))
 
@@ -23,8 +25,18 @@ interface IResult {
   }
 }
 
-export default (instance: typeof pri) => {
+export default async (instance: typeof pri) => {
   const projectRootPath = instance.project.getProjectRootPath()
+
+  instance.project.whiteFileRules.add(file => {
+    return whiteList.some(whiteName => path.format(file) === path.join(projectRootPath, whiteName))
+  })
+
+  // src/stores/**
+  instance.project.whiteFileRules.add(file => {
+    const relativePath = path.relative(projectRootPath, file.dir)
+    return relativePath.startsWith("src/stores")
+  })
 
   instance.project.onAnalyseProject(files => {
     return {
@@ -40,7 +52,10 @@ export default (instance: typeof pri) => {
             return true
           })
           .map(file => {
-            return { file, name: safeName(file.name) }
+            return {
+              file,
+              name: safeName(file.name)
+            }
           })
       }
     } as IResult
@@ -141,6 +156,16 @@ export default (instance: typeof pri) => {
         parser: "typescript"
       })
     )
+  })
+
+  // Register service
+  instance.devService.on("addStore", async (data, resolve, reject) => {
+    try {
+      await addStore(projectRootPath, data)
+      resolve()
+    } catch (error) {
+      reject(error)
+    }
   })
 }
 
