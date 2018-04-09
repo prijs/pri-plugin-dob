@@ -43,6 +43,10 @@ export default async (instance: typeof pri) => {
       projectAnalyseDob: {
         storeFiles: files
           .filter(file => {
+            if (file.isDir) {
+              return false
+            }
+
             const relativePath = path.relative(projectRootPath, path.join(file.dir, file.name))
 
             if (!relativePath.startsWith(storesPath.dir)) {
