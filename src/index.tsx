@@ -12,7 +12,7 @@ const LAYOUT = "LayoutComponent"
 const MARKDOWN_LAYOUT_TEMP = "MarkdownLayoutTempComponent"
 const MARKDOWN_LAYOUT = "MarkdownLayoutComponent"
 
-const whiteList = ["src/utils/helper.tsx"]
+const whiteList = ["src/stores", "src/utils/helper.tsx"]
 
 const safeName = (str: string) => _.upperFirst(_.camelCase(str))
 
