@@ -106,7 +106,7 @@ export default async (instance: typeof pri) => {
       path.join(helperPath.dir, helperPath.name)
     )
 
-    entry.pipeHeader(header => {
+    entry.pipeAppHeader(header => {
       return `
         ${header}
         import { useStrict } from "dob"
@@ -115,14 +115,14 @@ export default async (instance: typeof pri) => {
       `
     })
 
-    entry.pipeBody(body => {
+    entry.pipeAppBody(body => {
       return `
         ${body}
         useStrict()
       `
     })
 
-    entry.pipeRenderRouter(router => {
+    entry.pipeAppRouter(router => {
       return `
         <Provider {...stores}>
           ${router}
