@@ -2,7 +2,7 @@
   "name": "pri-plugin-dob",
   "version": "1.0.5",
   "types": "src/index.ts",
-  "main": "built/index.js",
+  "main": "built/src/index.js",
   "scripts": {
     "start": "pri plugin-watch",
     "prepublishOnly": "pri plugin-build",
@@ -15,7 +15,10 @@
     "pri": "*"
   },
   "pri": {
-    "web-entry": ["./built/web-store/index.js", "./built/web-menu/index.js"],
+    "web-entry": [
+      "./built/web-store/index.js",
+      "./built/web-menu/index.js"
+    ],
     "type": "plugin"
   }
 }

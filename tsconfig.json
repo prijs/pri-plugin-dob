@@ -9,6 +9,7 @@
     "experimentalDecorators": true,
     "skipLibCheck": true,
     "outDir": "built",
+    "rootDir": "./",
     "lib": [
       "dom",
       "es5",
@@ -16,6 +17,12 @@
       "scripthost"
     ]
   },
+  "include": [
+    ".temp/**/*",
+    "src/**/*",
+    "config/**/*",
+    "tests/**/*"
+  ],
   "exclude": [
     "node_modules",
     "built",
