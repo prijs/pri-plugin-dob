@@ -12,8 +12,6 @@ const LAYOUT = 'LayoutComponent';
 const MARKDOWN_LAYOUT_TEMP = 'MarkdownLayoutTempComponent';
 const MARKDOWN_LAYOUT = 'MarkdownLayoutComponent';
 
-const whiteList = ['src/stores', 'src/utils/helper.tsx'];
-
 const safeName = (str: string) => _.upperFirst(_.camelCase(str));
 
 interface IResult {
@@ -41,6 +39,7 @@ export default async (instance: typeof pri) => {
     return config;
   });
 
+  const whiteList = ['src/stores'];
   instance.project.whiteFileRules.add(file => {
     return whiteList.some(whiteName => path.format(file) === path.join(projectRootPath, whiteName));
   });
@@ -175,13 +174,8 @@ export default async (instance: typeof pri) => {
   });
 
   // Register service
-  instance.devService.on('addStore', async (data, resolve, reject) => {
-    try {
-      await addStore(projectRootPath, data);
-      resolve();
-    } catch (error) {
-      reject(error);
-    }
+  instance.devService.on('addStore', async data => {
+    await addStore(projectRootPath, data);
   });
 };
 
