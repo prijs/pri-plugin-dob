@@ -24,12 +24,10 @@ interface IResult {
 }
 
 export default async (instance: typeof pri) => {
-  const projectRootPath = instance.project.getProjectRootPath();
-
-  const storeFilePath = path.join(projectRootPath, tempTypesPath.dir, 'stores.ts');
+  const storeFilePath = path.join(instance.projectRootPath, tempTypesPath.dir, 'stores.ts');
   const storeFilePathInfo = path.parse(storeFilePath);
 
-  instance.build.pipeConfig((env, config) => {
+  instance.build.pipeConfig(config => {
     if (!config.resolve.alias) {
       config.resolve.alias = {};
     }
@@ -41,12 +39,12 @@ export default async (instance: typeof pri) => {
 
   const whiteList = ['src/stores'];
   instance.project.whiteFileRules.add(file => {
-    return whiteList.some(whiteName => path.format(file) === path.join(projectRootPath, whiteName));
+    return whiteList.some(whiteName => path.format(file) === path.join(instance.projectRootPath, whiteName));
   });
 
   // src/stores/**
   instance.project.whiteFileRules.add(file => {
-    const relativePath = path.relative(projectRootPath, file.dir);
+    const relativePath = path.relative(instance.projectRootPath, file.dir);
     return relativePath.startsWith('src/stores');
   });
 
@@ -59,7 +57,7 @@ export default async (instance: typeof pri) => {
               return false;
             }
 
-            const relativePath = path.relative(projectRootPath, path.join(file.dir, file.name));
+            const relativePath = path.relative(instance.projectRootPath, path.join(file.dir, file.name));
 
             if (!relativePath.startsWith(storesPath.dir)) {
               return false;
@@ -77,7 +75,7 @@ export default async (instance: typeof pri) => {
     } as IResult;
   });
 
-  instance.project.onCreateEntry((analyseInfo: IResult, entry, env, projectConfig) => {
+  instance.project.onCreateEntry((analyseInfo: IResult, entry) => {
     if (analyseInfo.projectAnalyseDob.storeFiles.length === 0) {
       if (fs.existsSync(storeFilePath)) {
         fs.removeSync(storeFilePath);
@@ -175,7 +173,7 @@ export default async (instance: typeof pri) => {
 
   // Register service
   instance.devService.on('addStore', async data => {
-    await addStore(projectRootPath, data);
+    await addStore(instance.projectRootPath, data);
   });
 };
 
