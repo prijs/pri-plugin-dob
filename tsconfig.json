@@ -8,14 +8,21 @@
     "target": "esnext",
     "experimentalDecorators": true,
     "skipLibCheck": true,
-    "outDir": "built",
+    "outDir": "dist",
     "rootDir": "./",
+    "baseUrl": ".",
     "lib": [
       "dom",
       "es5",
       "es6",
       "scripthost"
-    ]
+    ],
+    "paths": {
+      "pri/*": [
+        "pri",
+        ".temp/types/*"
+      ]
+    }
   },
   "include": [
     ".temp/**/*",
@@ -25,7 +32,6 @@
   ],
   "exclude": [
     "node_modules",
-    "built",
-    "lib"
+    "dist"
   ]
 }
