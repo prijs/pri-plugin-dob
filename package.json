@@ -1,6 +1,6 @@
 {
   "name": "pri-plugin-dob",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "types": "src/index.ts",
   "main": "dist/src/index.js",
   "scripts": {
@@ -16,8 +16,8 @@
   },
   "pri": {
     "web-entry": [
-      "./built/src/web-store/index.js",
-      "./built/src/web-menu/index.js"
+      "./dist/src/web-store/index.js",
+      "./dist/src/web-menu/index.js"
     ],
     "type": "plugin"
   },
