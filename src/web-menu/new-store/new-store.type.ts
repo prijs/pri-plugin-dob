@@ -1,11 +1,11 @@
 export class Props {
-  public form?: any
+  public form?: any;
   public onSuccess?: () => void = () => {
     //
-  }
-  [x: string]: any
+  };
+  [x: string]: any;
 }
 
 export class State {
-  public visible = false
+  public visible = false;
 }

@@ -1,10 +1,10 @@
-import { Button, Form, Input, Switch } from "antd"
-import { Connect } from "dob-react"
-import * as React from "react"
-import { Props, State } from "./new-store.type"
-import * as S from "./style"
+import { Button, Form, Input, Switch } from 'antd';
+import { Connect } from 'dob-react';
+import * as React from 'react';
+import { Props, State } from './new-store.type';
+import * as S from './style';
 
-const FormItem = Form.Item
+const FormItem = Form.Item;
 
 const formItemLayout = {
   labelCol: {
@@ -15,7 +15,7 @@ const formItemLayout = {
     xs: { span: 24 },
     sm: { span: 16 }
   }
-}
+};
 
 const tailFormItemLayout = {
   wrapperCol: {
@@ -28,40 +28,40 @@ const tailFormItemLayout = {
       offset: 8
     }
   }
-}
+};
 
 function hasErrors(fieldsError: any) {
-  return Object.keys(fieldsError).some((field: string) => fieldsError[field])
+  return Object.keys(fieldsError).some((field: string) => fieldsError[field]);
 }
 
 @Connect
 class FormComponent extends React.PureComponent<Props, State> {
-  public static defaultProps = new Props()
-  public state = new State()
+  public static defaultProps = new Props();
+  public state = new State();
 
   public render() {
     return (
       <Form onSubmit={this.handleSubmit}>
         <FormItem {...formItemLayout} label="Name">
-          {this.props.form.getFieldDecorator("name", {
-            initialValue: "application",
+          {this.props.form.getFieldDecorator('name', {
+            initialValue: 'application',
             rules: [
               {
-                type: "string",
-                message: "Name must be string!"
+                type: 'string',
+                message: 'Name must be string!'
               },
               {
                 required: true,
-                message: "Name is required!"
+                message: 'Name is required!'
               }
             ]
           })(<Input />)}
         </FormItem>
 
         <FormItem {...formItemLayout} label="With demo">
-          {this.props.form.getFieldDecorator("withDemo", {
+          {this.props.form.getFieldDecorator('withDemo', {
             initialValue: true,
-            valuePropName: "checked"
+            valuePropName: 'checked'
           })(<Switch />)}
         </FormItem>
 
@@ -71,14 +71,14 @@ class FormComponent extends React.PureComponent<Props, State> {
           </Button>
         </FormItem>
       </Form>
-    )
+    );
   }
 
   private handleSubmit = async (e: any) => {
-    e.preventDefault()
-    await this.props.ApplicationAction.addStore(this.props.form.getFieldsValue())
-    this.props.onSuccess()
-  }
+    e.preventDefault();
+    await this.props.ApplicationAction.addStore(this.props.form.getFieldsValue());
+    this.props.onSuccess();
+  };
 }
 
-export default Form.create()(FormComponent as any) as any
+export default Form.create()(FormComponent as any) as any;

@@ -1,24 +1,25 @@
-import * as fs from "fs-extra"
-import * as _ from "lodash"
-import * as path from "path"
-import * as prettier from "prettier"
-import { storesPath } from "pri"
+import * as fs from 'fs-extra';
+import * as _ from 'lodash';
+import * as path from 'path';
+import { storesPath } from 'pri';
 
 export async function addStore(
   projectRootPath: string,
   options: {
-    name: string
-    withDemo: boolean
+    name: string;
+    withDemo: boolean;
   }
 ) {
-  const camelName = _.camelCase(options.name)
-  const camelUpperFirstName = _.upperFirst(camelName)
-  const kebabName = _.kebabCase(options.name)
-  const fileFullPath = path.join(projectRootPath, storesPath.dir, kebabName) + ".tsx"
+  const camelName = _.camelCase(options.name);
+  const camelUpperFirstName = _.upperFirst(camelName);
+  const kebabName = _.kebabCase(options.name);
+  const fileFullPath = path.join(projectRootPath, storesPath.dir, kebabName) + '.tsx';
 
   if (fs.existsSync(fileFullPath)) {
-    throw Error(`${kebabName} already exist!`)
+    throw Error(`${kebabName} already exist!`);
   }
+
+  const prettier = await import('prettier');
 
   fs.outputFileSync(
     fileFullPath,
@@ -28,7 +29,7 @@ export async function addStore(
 
     @observable
     export class ${camelUpperFirstName}Store {
-      ${options.withDemo ? `public testValue = 1` : ""}
+      ${options.withDemo ? `public testValue = 1` : ''}
     }
 
     export class ${camelUpperFirstName}Action {
@@ -41,14 +42,14 @@ export async function addStore(
           this.${camelName}Store.testValue++
         }
       `
-          : ""
+          : ''
       }
     }
   `,
       {
         semi: false,
-        parser: "typescript"
+        parser: 'typescript'
       }
     )
-  )
+  );
 }

@@ -2,8 +2,7 @@ import * as fs from 'fs-extra';
 import * as _ from 'lodash';
 import * as normalizePath from 'normalize-path';
 import * as path from 'path';
-import * as prettier from 'prettier';
-import { pri, storesPath, tempJsEntryPath, tempPath, tempTypesPath } from 'pri';
+import { pri, storesPath, tempJsEntryPath, tempTypesPath } from 'pri';
 import { addStore } from './methods';
 
 const LAYOUT_TEMP = 'LayoutTempComponent';
@@ -23,18 +22,18 @@ interface IResult {
   };
 }
 
-export default async (instance: typeof pri) => {
+export const entry = (instance: typeof pri) => {
   const storeFilePath = path.join(instance.projectRootPath, tempTypesPath.dir, 'stores.ts');
   const storeFilePathInfo = path.parse(storeFilePath);
 
-  instance.build.pipeConfig(config => {
-    if (!config.resolve.alias) {
-      config.resolve.alias = {};
+  instance.build.pipeConfig(buildConfig => {
+    if (!buildConfig.resolve.alias) {
+      buildConfig.resolve.alias = {};
     }
 
-    config.resolve.alias['pri/stores'] = storeFilePath;
+    buildConfig.resolve.alias['pri/stores'] = storeFilePath;
 
-    return config;
+    return buildConfig;
   });
 
   const whiteList = ['src/stores'];
@@ -75,7 +74,7 @@ export default async (instance: typeof pri) => {
     } as IResult;
   });
 
-  instance.project.onCreateEntry((analyseInfo: IResult, entry) => {
+  instance.project.onCreateEntry(async (analyseInfo: IResult, entryInfo) => {
     if (analyseInfo.projectAnalyseDob.storeFiles.length === 0) {
       if (fs.existsSync(storeFilePath)) {
         fs.removeSync(storeFilePath);
@@ -85,15 +84,15 @@ export default async (instance: typeof pri) => {
     }
 
     // Connect normal pages
-    entry.pipe.set('normalPagesImportEnd', importEnd => {
+    entryInfo.pipe.set('normalPagesImportEnd', importEnd => {
       return `
         ${importEnd}.then(component => Connect()(component.default))
       `;
     });
 
     // Connect layout
-    entry.pipe.set('analyseLayoutImportName', text => LAYOUT_TEMP);
-    entry.pipe.set('analyseLayoutBody', body => {
+    entryInfo.pipe.set('analyseLayoutImportName', text => LAYOUT_TEMP);
+    entryInfo.pipe.set('analyseLayoutBody', body => {
       return `
         ${body}
         const ${LAYOUT} = Connect()(${LAYOUT_TEMP})
@@ -101,8 +100,8 @@ export default async (instance: typeof pri) => {
     });
 
     // Connect markdown layout
-    entry.pipe.set('analyseMarkdownLayoutImportName', text => MARKDOWN_LAYOUT_TEMP);
-    entry.pipe.set('analyseMarkdownLayoutBody', body => {
+    entryInfo.pipe.set('analyseMarkdownLayoutImportName', text => MARKDOWN_LAYOUT_TEMP);
+    entryInfo.pipe.set('analyseMarkdownLayoutBody', body => {
       return `
       ${body}
       const ${MARKDOWN_LAYOUT} = Connect()(${MARKDOWN_LAYOUT_TEMP})
@@ -113,7 +112,7 @@ export default async (instance: typeof pri) => {
       path.relative(path.join(tempJsEntryPath.dir), path.join(storeFilePathInfo.dir, storeFilePathInfo.name))
     );
 
-    entry.pipeAppHeader(header => {
+    entryInfo.pipeAppHeader(header => {
       return `
         ${header}
         import { useStrict } from "dob"
@@ -122,14 +121,14 @@ export default async (instance: typeof pri) => {
       `;
     });
 
-    entry.pipeAppBody(body => {
+    entryInfo.pipeAppBody(body => {
       return `
         ${body}
         useStrict()
       `;
     });
 
-    entry.pipeAppRouter(router => {
+    entryInfo.pipeAppRouter(router => {
       return `
         <Provider {...stores}>
           ${router}
@@ -160,6 +159,8 @@ export default async (instance: typeof pri) => {
 
       export { stores }
     `;
+
+    const prettier = await import('prettier');
 
     // If has stores, create helper.ts
     fs.outputFileSync(

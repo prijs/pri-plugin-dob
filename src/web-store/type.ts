@@ -1,5 +1,5 @@
 export class Props {
-  [x: string]: any
+  [x: string]: any;
 }
 
 export class State {}
