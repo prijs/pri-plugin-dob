@@ -83,10 +83,10 @@ pri.project.onCreateEntry(async (analyseInfo: IResult, entryInfo) => {
   }
 
   // Connect normal pages
-  entryInfo.pipe.set('normalPagesImportEnd', importEnd => {
+  entryInfo.pipe.set('returnPageInstance', importEnd => {
     return `
-        ${importEnd}.then(component => Connect()(component.default))
-      `;
+      return Connect()(code.default)
+    `;
   });
 
   // Connect layout
