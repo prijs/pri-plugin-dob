@@ -23,7 +23,8 @@
     "version": "2.0.4"
   },
   "dependencies": {
-    "@babel/runtime": "^7.0.0"
+    "@babel/runtime": "^7.0.0",
+    "styled-components": "^4.1.3"
   },
   "tnpm": {
     "mode": "npm"
