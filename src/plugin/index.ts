@@ -22,121 +22,120 @@ interface IResult {
   };
 }
 
-export const entry = (instance: typeof pri) => {
-  const storeFilePath = path.join(instance.projectRootPath, tempTypesPath.dir, 'stores.ts');
-  const storeFilePathInfo = path.parse(storeFilePath);
+const storeFilePath = path.join(pri.projectRootPath, tempTypesPath.dir, 'stores.ts');
+const storeFilePathInfo = path.parse(storeFilePath);
 
-  instance.build.pipeConfig(buildConfig => {
-    if (!buildConfig.resolve.alias) {
-      buildConfig.resolve.alias = {};
+pri.build.pipeConfig(buildConfig => {
+  if (!buildConfig.resolve.alias) {
+    buildConfig.resolve.alias = {};
+  }
+
+  buildConfig.resolve.alias['pri/stores'] = storeFilePath;
+
+  return buildConfig;
+});
+
+const whiteList = ['src/stores'];
+pri.project.whiteFileRules.add(file => {
+  return whiteList.some(whiteName => path.format(file) === path.join(pri.projectRootPath, whiteName));
+});
+
+// src/stores/**
+pri.project.whiteFileRules.add(file => {
+  const relativePath = path.relative(pri.projectRootPath, file.dir);
+  return relativePath.startsWith('src/stores');
+});
+
+pri.project.onAnalyseProject(files => {
+  return {
+    projectAnalyseDob: {
+      storeFiles: files
+        .filter(file => {
+          if (file.isDir) {
+            return false;
+          }
+
+          const relativePath = path.relative(pri.projectRootPath, path.join(file.dir, file.name));
+
+          if (!relativePath.startsWith(storesPath.dir)) {
+            return false;
+          }
+
+          return true;
+        })
+        .map(file => {
+          return {
+            file,
+            name: safeName(file.name)
+          };
+        })
+    }
+  } as IResult;
+});
+
+pri.project.onCreateEntry(async (analyseInfo: IResult, entryInfo) => {
+  if (analyseInfo.projectAnalyseDob.storeFiles.length === 0) {
+    if (fs.existsSync(storeFilePath)) {
+      fs.removeSync(storeFilePath);
     }
 
-    buildConfig.resolve.alias['pri/stores'] = storeFilePath;
+    return;
+  }
 
-    return buildConfig;
-  });
-
-  const whiteList = ['src/stores'];
-  instance.project.whiteFileRules.add(file => {
-    return whiteList.some(whiteName => path.format(file) === path.join(instance.projectRootPath, whiteName));
-  });
-
-  // src/stores/**
-  instance.project.whiteFileRules.add(file => {
-    const relativePath = path.relative(instance.projectRootPath, file.dir);
-    return relativePath.startsWith('src/stores');
-  });
-
-  instance.project.onAnalyseProject(files => {
-    return {
-      projectAnalyseDob: {
-        storeFiles: files
-          .filter(file => {
-            if (file.isDir) {
-              return false;
-            }
-
-            const relativePath = path.relative(instance.projectRootPath, path.join(file.dir, file.name));
-
-            if (!relativePath.startsWith(storesPath.dir)) {
-              return false;
-            }
-
-            return true;
-          })
-          .map(file => {
-            return {
-              file,
-              name: safeName(file.name)
-            };
-          })
-      }
-    } as IResult;
-  });
-
-  instance.project.onCreateEntry(async (analyseInfo: IResult, entryInfo) => {
-    if (analyseInfo.projectAnalyseDob.storeFiles.length === 0) {
-      if (fs.existsSync(storeFilePath)) {
-        fs.removeSync(storeFilePath);
-      }
-
-      return;
-    }
-
-    // Connect normal pages
-    entryInfo.pipe.set('normalPagesImportEnd', importEnd => {
-      return `
+  // Connect normal pages
+  entryInfo.pipe.set('normalPagesImportEnd', importEnd => {
+    return `
         ${importEnd}.then(component => Connect()(component.default))
       `;
-    });
+  });
 
-    // Connect layout
-    entryInfo.pipe.set('analyseLayoutImportName', text => LAYOUT_TEMP);
-    entryInfo.pipe.set('analyseLayoutBody', body => {
-      return `
+  // Connect layout
+  entryInfo.pipe.set('analyseLayoutImportName', text => LAYOUT_TEMP);
+  entryInfo.pipe.set('analyseLayoutBody', body => {
+    return `
         ${body}
         const ${LAYOUT} = Connect()(${LAYOUT_TEMP})
       `;
-    });
+  });
 
-    // Connect markdown layout
-    entryInfo.pipe.set('analyseMarkdownLayoutImportName', text => MARKDOWN_LAYOUT_TEMP);
-    entryInfo.pipe.set('analyseMarkdownLayoutBody', body => {
-      return `
+  // Connect markdown layout
+  entryInfo.pipe.set('analyseMarkdownLayoutImportName', text => MARKDOWN_LAYOUT_TEMP);
+  entryInfo.pipe.set('analyseMarkdownLayoutBody', body => {
+    return `
       ${body}
       const ${MARKDOWN_LAYOUT} = Connect()(${MARKDOWN_LAYOUT_TEMP})
     `;
-    });
+  });
 
-    const entryRelativeToHelper = ensureStartWithWebpackRelativePoint(
-      path.relative(path.join(tempJsEntryPath.dir), path.join(storeFilePathInfo.dir, storeFilePathInfo.name))
-    );
+  const entryRelativeToHelper = ensureStartWithWebpackRelativePoint(
+    path.relative(path.join(tempJsEntryPath.dir), path.join(storeFilePathInfo.dir, storeFilePathInfo.name))
+  );
 
-    entryInfo.pipeAppHeader(header => {
-      return `
+  entryInfo.pipeAppHeader(header => {
+    return `
         ${header}
         import { useStrict } from "dob"
         import { Connect, Provider } from "dob-react"
         import { stores } from "${normalizePath(entryRelativeToHelper)}"
       `;
-    });
+  });
 
-    entryInfo.pipeAppBody(body => {
-      return `
+  entryInfo.pipeAppBody(body => {
+    return `
         ${body}
         useStrict()
       `;
-    });
+  });
 
-    entryInfo.pipeAppRouter(router => {
-      return `
+  entryInfo.pipeAppRouter(router => {
+    return `
         <Provider {...stores}>
           ${router}
         </Provider>
       `;
-    });
+  });
 
-    const storesHelper = `
+  const storesHelper = `
       import { combineStores } from "dob"
 
       ${analyseInfo.projectAnalyseDob.storeFiles
@@ -160,23 +159,22 @@ export const entry = (instance: typeof pri) => {
       export { stores }
     `;
 
-    const prettier = await import('prettier');
+  const prettier = await import('prettier');
 
-    // If has stores, create helper.ts
-    fs.outputFileSync(
-      storeFilePath,
-      prettier.format(getHelperContent(storesHelper), {
-        semi: false,
-        parser: 'typescript'
-      })
-    );
-  });
+  // If has stores, create helper.ts
+  fs.outputFileSync(
+    storeFilePath,
+    prettier.format(getHelperContent(storesHelper), {
+      semi: false,
+      parser: 'typescript'
+    })
+  );
+});
 
-  // Register service
-  instance.devService.on('addStore', async data => {
-    await addStore(instance.projectRootPath, data);
-  });
-};
+// Register service
+pri.devService.on('addStore', async data => {
+  await addStore(pri.projectRootPath, data);
+});
 
 function getHelperContent(str: string) {
   return `
