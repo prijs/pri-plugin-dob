@@ -1,6 +1,6 @@
 {
   "name": "pri-plugin-dob",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "types": "src/index.ts",
   "main": "dist/index.js",
   "scripts": {
@@ -19,8 +19,7 @@
     "pri": "^2.0.3"
   },
   "pri": {
-    "type": "plugin",
-    "version": "2.0.6"
+    "type": "plugin"
   },
   "dependencies": {
     "styled-components": "^4.1.3",
