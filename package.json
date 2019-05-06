@@ -1,6 +1,6 @@
 {
   "name": "pri-plugin-dob",
-  "version": "2.0.5",
+  "version": "3.0.0",
   "types": "src/index.ts",
   "main": "dist/index.js",
   "scripts": {
@@ -13,13 +13,10 @@
     "docs": "pri docs",
     "bundle": "pri bundle",
     "analyse": "pri analyse",
-    "format": "tslint --fix './src/**/*.?(ts|tsx)' && prettier --write './src/**/*.?(ts|tsx)'"
+    "format": "eslint --fix './?(src|docs|tests)/**/*.?(ts|tsx)'"
   },
   "devDependencies": {
-    "pri": "^2.0.3"
-  },
-  "pri": {
-    "type": "plugin"
+    "pri": "^3.0.6"
   },
   "dependencies": {
     "styled-components": "^4.1.3",
@@ -27,5 +24,11 @@
   },
   "tnpm": {
     "mode": "npm"
+  },
+  "peerDependencies": {},
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm test"
+    }
   }
 }

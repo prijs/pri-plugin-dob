@@ -2,7 +2,7 @@ import * as fs from 'fs-extra';
 import * as _ from 'lodash';
 import * as normalizePath from 'normalize-path';
 import * as path from 'path';
-import { pri, storesPath, tempJsEntryPath, tempTypesPath } from 'pri';
+import { pri, tempJsEntryPath, tempTypesPath, srcPath } from 'pri';
 import { addStore } from './methods';
 
 const LAYOUT_TEMP = 'LayoutTempComponent';
@@ -15,10 +15,10 @@ const safeName = (str: string) => _.upperFirst(_.camelCase(str));
 
 interface IResult {
   projectAnalyseDob: {
-    storeFiles: Array<{
+    storeFiles: {
       name: string;
       file: path.ParsedPath;
-    }>;
+    }[];
   };
 }
 
@@ -57,7 +57,7 @@ pri.project.onAnalyseProject(files => {
 
           const relativePath = path.relative(pri.projectRootPath, path.join(file.dir, file.name));
 
-          if (!relativePath.startsWith(storesPath.dir)) {
+          if (!relativePath.startsWith(path.join(srcPath.dir, 'stores'))) {
             return false;
           }
 
@@ -70,7 +70,7 @@ pri.project.onAnalyseProject(files => {
           };
         })
     }
-  } as IResult;
+  };
 });
 
 pri.project.onCreateEntry(async (analyseInfo: IResult, entryInfo) => {
@@ -83,14 +83,14 @@ pri.project.onCreateEntry(async (analyseInfo: IResult, entryInfo) => {
   }
 
   // Connect normal pages
-  entryInfo.pipe.set('returnPageInstance', importEnd => {
+  entryInfo.pipe.set('returnPageInstance', () => {
     return `
       return Connect()(code.default)
     `;
   });
 
   // Connect layout
-  entryInfo.pipe.set('analyseLayoutImportName', text => LAYOUT_TEMP);
+  entryInfo.pipe.set('analyseLayoutImportName', () => LAYOUT_TEMP);
   entryInfo.pipe.set('analyseLayoutBody', body => {
     return `
         ${body}
@@ -99,7 +99,7 @@ pri.project.onCreateEntry(async (analyseInfo: IResult, entryInfo) => {
   });
 
   // Connect markdown layout
-  entryInfo.pipe.set('analyseMarkdownLayoutImportName', text => MARKDOWN_LAYOUT_TEMP);
+  entryInfo.pipe.set('analyseMarkdownLayoutImportName', () => MARKDOWN_LAYOUT_TEMP);
   entryInfo.pipe.set('analyseMarkdownLayoutBody', body => {
     return `
       ${body}
@@ -192,8 +192,7 @@ export function ensureStartWithWebpackRelativePoint(str: string) {
   }
 
   if (!str.startsWith('./') && !str.startsWith('../')) {
-    return './' + str;
-  } else {
-    return str;
+    return `./${str}`;
   }
+  return str;
 }
