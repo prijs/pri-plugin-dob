@@ -1,7 +1,6 @@
 import * as fs from 'fs-extra';
 import * as _ from 'lodash';
 import * as path from 'path';
-import { storesPath } from 'pri';
 
 export async function addStore(
   projectRootPath: string,
@@ -13,7 +12,7 @@ export async function addStore(
   const camelName = _.camelCase(options.name);
   const camelUpperFirstName = _.upperFirst(camelName);
   const kebabName = _.kebabCase(options.name);
-  const fileFullPath = path.join(projectRootPath, storesPath.dir, kebabName) + '.tsx';
+  const fileFullPath = `${path.join(projectRootPath, 'stores', kebabName)}.tsx`;
 
   if (fs.existsSync(fileFullPath)) {
     throw Error(`${kebabName} already exist!`);
